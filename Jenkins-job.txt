@@ -1,0 +1,4 @@
+ssh -tt vagrant@192.168.33.27 'mkdir -p ~/db_backups/`date +%d-%m-%y`'
+ssh -tt vagrant@192.168.33.27 'docker exec 03742dd1626c /usr/bin/mysqldump -u root --password=abc@123 --all-databases > ~/db_backups/`date +%d-%m-%y`/dbackup.sql'
+scp -r  vagrant@192.168.33.27:/home/vagrant/db_backups /root/mysql_backup
+
