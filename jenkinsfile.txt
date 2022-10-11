@@ -1,0 +1,22 @@
+pipeline {
+    agent any
+    stages{
+        stage('echo Test') {
+            steps {
+                sh 'echo Hello World!'
+            }
+        }
+        stage('Backup') { 
+            steps {
+                sh ("ssh -tt vagrant@192.168.33.27 'mkdir -p ~/db_backups/`date +%d-%m-%y`'")
+                sh ("ssh -tt vagrant@192.168.33.27 'docker exec 03742dd1626c /usr/bin/mysqldump -u root --password=abc@123 --all-databases > ~/db_backups/`date +%d-%m-%y`/dbackup.sql'")
+                sh ("scp -r  vagrant@192.168.33.27:/home/vagrant/db_backups /root/mysql_backup")
+            }
+        }
+        stage('Remove file') { 
+            steps {
+                sh("ssh -tt vagrant@192.168.33.27 'find /home/vagrant/db_backups/* -maxdepth 1  -type d -mtime +3 -print -exec rm -rv {} + '")
+            }
+        }
+    }
+    }
