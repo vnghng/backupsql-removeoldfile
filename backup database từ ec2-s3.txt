@@ -1,0 +1,21 @@
+pipeline {
+    agent any
+    stages{
+        stage('echo Test') {
+            steps {
+                sh 'echo Hello World!'
+            }
+        }
+        stage('Backup') { 
+            steps {
+                sh ("mysqldump -h database-nghianv2.cluster-ro-chbw2k7sy5pl.ap-southeast-1.rds.amazonaws.com -P 3306 -u admin --password=vnghng2k --column-statistics=0 --set-gtid-purged=OFF --all-databases > /var/lib/jenkins/db_backups/`date +%d-%m-%y`_dbackup.sql")
+                sh (" aws s3 cp /var/lib/jenkins/db_backups/`date +%d-%m-%y`_dbackup.sql s3://nghianv2-s3 --region ap-southeast-1")
+            }
+        }
+        stage('Remove Backups') { 
+            steps {
+                sh ("/var/lib/jenkins/db_backups/removebackups.sh nghianv2-s3 1")
+            }
+        }        
+    }
+    }
